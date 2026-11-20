@@ -20,3 +20,14 @@
 body {
   color: var(--foreground);
 }
+
+/* Modo claro automatico (segun el sistema, sin switch).
+   Los componentes usan white/black de Tailwind, asi que alcanza con invertir esos dos colores. */
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --color-white: oklch(0.145 0 0);
+    --color-black: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+  }
+}

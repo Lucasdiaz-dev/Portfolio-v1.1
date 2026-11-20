@@ -10,8 +10,8 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    name: "portfolio (shader)",
-    href: "https://github.com/Lucasdiaz-dev",
+    name: "example",
+    href: "",
     description:
       "personal site with a full-viewport shader gradient background and minimal links.",
     status: "previous version",
@@ -19,8 +19,8 @@ export const projects: Project[] = [
     iconLabel: "p",
   },
   {
-    name: "portfolio v1",
-    href: "https://github.com/Lucasdiaz-dev",
+    name: "example",
+    href: "",
     description:
       "this portfolio — next.js, minimal layout, project list, and editable content files.",
     status: "this site",

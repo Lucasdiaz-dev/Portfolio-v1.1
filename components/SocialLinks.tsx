@@ -7,7 +7,7 @@ import {
 } from "@/components/icons";
 
 const pillClass =
-  "inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md bg-white/10 px-4 py-2 text-sm font-medium text-white shadow-xs transition-all duration-300 hover:scale-95 hover:bg-white/15 has-[>svg]:px-4";
+  "inline-flex h-9 shrink-0 cursor-default items-center justify-center gap-2 rounded-md bg-white/5 px-4 py-2 text-sm font-medium text-white shadow-xs transition-all duration-300 hover:scale-95 hover:bg-white/10 has-[>svg]:px-4";
 
 export function SocialLinks() {
   const { links } = site;
