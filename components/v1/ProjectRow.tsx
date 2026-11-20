@@ -1,4 +1,4 @@
-import { ProjectInfo } from "@/components/ProjectInfo";
+import { ProjectInfo } from "@/components/v1/ProjectInfo";
 import type { Project } from "@/content/projects";
 
 type ProjectRowProps = {

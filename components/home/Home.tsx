@@ -1,15 +1,15 @@
 "use client";
 
-// Versión de prueba (/v2). Header y marquee fijos; el bloque del medio
+// Home: header y marquee fijos; el bloque del medio
 // se desliza horizontalmente al detalle del proyecto.
 import { useEffect, useState } from "react";
 import { site } from "@/content/site";
 import { projects, type Project } from "@/content/projects";
 import { SocialLinks } from "@/components/SocialLinks";
-import { LogoFX } from "@/components/LogoFX";
-import { TextFX } from "@/components/v2/TextFX";
+import { LogoFX } from "@/components/fx/LogoFX";
+import { TextFX } from "@/components/fx/TextFX";
 import { MobileFooter } from "@/components/MobileFooter";
-import { TechMarquee } from "@/components/TechMarquee";
+import { TechMarquee } from "@/components/fx/TechMarquee";
 
 const MAX_PROJECTS = 4; // corto para que no choque con la marquee
 
@@ -39,7 +39,7 @@ function Icon({ project }: { project: Project }) {
   );
 }
 
-export function HomeV2({ nameClassName = "" }: { nameClassName?: string }) {
+export function Home({ nameClassName = "" }: { nameClassName?: string }) {
   const list = projects.slice(0, MAX_PROJECTS) as ProjectV2[];
   const [active, setActive] = useState<number | null>(null);
   // guardamos el último abierto para que no se vacíe mientras vuelve la animación

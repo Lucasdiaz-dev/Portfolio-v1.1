@@ -1,7 +1,7 @@
-import { Hero } from "@/components/Hero";
+import { Hero } from "@/components/v1/Hero";
 import { MobileFooter } from "@/components/MobileFooter";
-import { ProjectList } from "@/components/ProjectList";
-import { TechMarquee } from "@/components/TechMarquee";
+import { ProjectList } from "@/components/v1/ProjectList";
+import { TechMarquee } from "@/components/fx/TechMarquee";
 
 export default function HomeV1() {
   return (

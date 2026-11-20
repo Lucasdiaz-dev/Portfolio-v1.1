@@ -1,5 +1,5 @@
 import { projects } from "@/content/projects";
-import { ProjectRow } from "@/components/ProjectRow";
+import { ProjectRow } from "@/components/v1/ProjectRow";
 
 export function ProjectList() {
   return (

@@ -1,6 +1,6 @@
 import { site } from "@/content/site";
 import { SocialLinks } from "@/components/SocialLinks";
-import { LogoFX } from "@/components/LogoFX";
+import { LogoFX } from "@/components/fx/LogoFX";
 
 const inlineLinkClass =
   "underline decoration-white/25 underline-offset-4 transition-all duration-300 hover:bg-gradient-to-br hover:from-purple-600 hover:to-purple-400 hover:bg-clip-text hover:text-transparent";
