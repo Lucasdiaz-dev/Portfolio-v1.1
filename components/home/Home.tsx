@@ -57,7 +57,7 @@ export function Home({ nameClassName = "" }: { nameClassName?: string }) {
 
   return (
     <>
-      <div className="flex min-h-screen w-full flex-col overflow-x-hidden px-5 pt-10 md:px-14 md:pt-14 md:pb-[170px]">
+      <div className="flex min-h-screen w-full flex-col overflow-x-clip px-5 md:overflow-x-hidden pt-10 md:px-14 md:pt-14 md:pb-[170px]">
         {/* header centrado en x */}
         <header className="flex cursor-default justify-center pt-8 select-none md:pt-16">
           <div className="flex items-center gap-3 md:gap-5">
