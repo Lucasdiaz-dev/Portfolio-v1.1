@@ -57,18 +57,15 @@ export function Home({ nameClassName = "" }: { nameClassName?: string }) {
 
   return (
     <>
-      {/* GUIA TEMPORAL: borrar */}
-      <div aria-hidden className="pointer-events-none fixed inset-y-0 left-1/2 z-[9999] w-px -translate-x-1/2 bg-red-500" />
       <div className="flex min-h-screen w-full flex-col overflow-x-hidden px-5 pt-10 md:px-14 md:pt-14 md:pb-[170px]">
         {/* header centrado en x */}
         <header className="flex cursor-default justify-center pt-8 select-none md:pt-16">
-          {/* mobile: dos columnas iguales -> el gap entre logo y texto cae justo en la mitad */}
-          <div className="grid w-full grid-cols-2 items-center gap-3 md:flex md:w-auto md:gap-5">
+          <div className="flex items-center gap-3 md:gap-5">
             {/* mobile: alto fijo del logo (h-[84px], tocá este valor); desktop: toma el alto del nombre + bajada */}
-            <div className="h-[98px] shrink-0 self-center justify-self-end md:h-auto md:self-stretch">
+            <div className="h-[98px] shrink-0 self-center md:h-auto md:self-stretch">
               <LogoFX fitParent linkHover={false} ghost className="relative" />
             </div>
-            <TextFX ghost ghostDelay={500} className="justify-self-start">
+            <TextFX ghost ghostDelay={500}>
             <div className="flex flex-col gap-2">
               <h1 className={`text-start text-[34px] leading-none md:text-[72px] font-normal tracking-[-0.045em] text-white ${nameClassName}`}>
                 {site.name}
