@@ -23,6 +23,8 @@ const GAP = 56;
 const SPEED = 40; // px por segundo
 const RADIUS = 140;
 const LIFT = 30; // cuanto sube la palabra bajo el mouse
+const TOUCH_WAVE = 170; // ancho de la ola en pantallas tactiles (px)
+const TOUCH_LIFT = 0.55; // altura de la ola en pantallas tactiles (1 = como el hover)
 
 const vs = `attribute vec2 p; varying vec2 vUv; void main(){ vUv = p*0.5+0.5; gl_Position = vec4(p,0.,1.); }`;
 const fs = `precision mediump float;
@@ -111,6 +113,7 @@ export function TechMarquee({ className = "" }: { className?: string }) {
 
     const mq = window.matchMedia("(prefers-color-scheme: light)");
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const touch = window.matchMedia("(hover: none)").matches;
     const lifts = new Map<number, number>();
     let x = 0, hL = 0, hR = 0, hover = false;
     let mouse = { x: -999, y: -999 }, target = { ...mouse };
@@ -147,7 +150,9 @@ export function TechMarquee({ className = "" }: { className?: string }) {
           // sube mas la punta que da a la cresta y se apaga hacia la otra punta
           const id = (base + i) * 100 + j, px = cx + charX[k][j];
           let goal = 0;
-          if (over) goal = 1;
+          // tactil: ola continua letra por letra alrededor del punto fijo del centro
+          if (touch) goal = TOUCH_LIFT * Math.exp(-(((px - W / 2) / TOUCH_WAVE) ** 2)); // cresta quieta en el centro
+          else if (over) goal = 1;
           else if (hover) {
             const d = px < hL ? hL - px : Math.max(0, px - hR);
             goal = 0.45 * Math.exp(-((d / 170) ** 2));
@@ -171,7 +176,8 @@ export function TechMarquee({ className = "" }: { className?: string }) {
     const frame = (t: number) => {
       const dt = Math.min((t - prevT) / 1000, 0.05);
       prevT = t;
-      if (!reduced) x += SPEED * (hover ? 0.35 : 1) * dt; // con el mouse encima baja la velocidad
+      if (touch) ghostMove(t);
+      if (!reduced) x += SPEED * (hover && !touch ? 0.35 : 1) * dt; // con el mouse encima baja la velocidad
       mouse.x += (target.x - mouse.x) * 0.15;
       mouse.y += (target.y - mouse.y) * 0.15;
       vel.x *= DAMP; vel.y *= DAMP;
@@ -211,6 +217,16 @@ export function TechMarquee({ className = "" }: { className?: string }) {
     };
     const onEnter = (e: MouseEvent) => { hover = true; last = pos(e); target = { ...last }; mouse = { ...last }; };
     const onLeave = () => { hover = false; last = null; };
+
+    // pantallas tactiles: no hay hover, asi que un "mouse fantasma" queda fijo en el
+    // centro (con un vaiven minimo para que haya velocidad y aparezcan los colores)
+    const ghostMove = (t: number) => {
+      const s = t / 1000;
+      const p = { x: W / 2 + Math.sin(s * 1.1) * 18, y: BAND / 2 + Math.sin(s * 1.9) * 8 };
+      if (!hover) { hover = true; last = p; target = { ...p }; mouse = { ...p }; }
+      if (last) { vel.x += (p.x - last.x) * 0.6; vel.y += (p.y - last.y) * 0.6; }
+      last = p; target = p;
+    };
 
     layout();
     raf = requestAnimationFrame(frame);

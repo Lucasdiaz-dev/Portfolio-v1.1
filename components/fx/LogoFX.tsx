@@ -7,6 +7,7 @@ const RADIUS = 0.35; // radio de influencia del mouse (en uv)
 const STRENGTH = 0.5; // cuanto se deforma la forma
 const RGB_SPLIT = 1.3; // cuanto se estiran los colores
 const DAMP = 0.9; // que tan rapido vuelve a la forma
+const GHOST_EVERY = 4500; // ms entre "hovers fantasma" en mobile y desktop
 
 const vs = `attribute vec2 p; varying vec2 vUv;
 void main(){ vUv = p*0.5+0.5; gl_Position = vec4(p,0.,1.); }`;
@@ -48,9 +49,13 @@ type Props = {
   lightSrc?: string;
   /** con fitParent: si el hover sobre el padre tambien activa el efecto (default true) */
   linkHover?: boolean;
+  /** en mobile y desktop (sin hover) pasa un hover fantasma cada tanto */
+  ghost?: boolean;
+  /** ms de retraso del hover fantasma (para encadenarlo con otros) */
+  ghostDelay?: number;
 };
 
-export function LogoFX({ src = "/logo.svg", size = 72, fitParent = false, className = "", lightSrc = "/logo-dark.svg", linkHover = true }: Props) {
+export function LogoFX({ src = "/logo.svg", size = 72, fitParent = false, className = "", lightSrc = "/logo-dark.svg", linkHover = true, ghost = false, ghostDelay = 0 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const hostRef = useRef<HTMLSpanElement>(null);
   const [light, setLight] = useState(false);
@@ -212,7 +217,35 @@ export function LogoFX({ src = "/logo.svg", size = 72, fitParent = false, classN
     canvas.addEventListener("mouseenter", onEnter);
     canvas.addEventListener("mouseleave", onLeave);
     window.addEventListener("resize", onResize);
+
+    // hover fantasma: mismo efecto, solo cambia como se activa
+    let ghostRaf = 0, ghostEvery = 0;
+    const ghostStart = ghost
+      ? window.setTimeout(() => {
+          const sweep = () => {
+            if (canvas.matches(":hover")) return; // si hay mouse encima, manda el mouse
+            const y0 = 0.42 + Math.random() * 0.16, dir = Math.random() < 0.5 ? 1 : -1;
+            const t0 = performance.now(), dur = 700;
+            last = null;
+            const step = (t: number) => {
+              if (canvas.matches(":hover")) return;
+              const k = Math.min((t - t0) / dur, 1), e = k * k * (3 - 2 * k);
+              const p = { x: 0.5 + dir * (-0.2 + 0.4 * e), y: y0 + Math.sin(e * Math.PI) * 0.04 };
+              if (!last) { last = p; target = { ...p }; mouse = { ...p }; }
+              push(p);
+              if (k < 1) ghostRaf = requestAnimationFrame(step); else last = null;
+            };
+            ghostRaf = requestAnimationFrame(step);
+          };
+          sweep();
+          ghostEvery = window.setInterval(sweep, GHOST_EVERY);
+        }, 1200 + ghostDelay)
+      : 0;
+
     return () => {
+      clearTimeout(ghostStart);
+      clearInterval(ghostEvery);
+      cancelAnimationFrame(ghostRaf);
       cancelAnimationFrame(raf);
       canvas.removeEventListener("mousemove", onMove);
       canvas.removeEventListener("mouseenter", onEnter);
@@ -225,7 +258,7 @@ export function LogoFX({ src = "/logo.svg", size = 72, fitParent = false, classN
         hoverParent.removeEventListener("mouseleave", onLeave);
       }
     };
-  }, [src, lightSrc, light, fitParent, linkHover]);
+  }, [src, lightSrc, light, fitParent, linkHover, ghost, ghostDelay]);
 
   return (
     <span

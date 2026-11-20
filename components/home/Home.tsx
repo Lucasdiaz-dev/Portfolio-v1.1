@@ -8,7 +8,6 @@ import { projects, type Project } from "@/content/projects";
 import { SocialLinks } from "@/components/SocialLinks";
 import { LogoFX } from "@/components/fx/LogoFX";
 import { TextFX } from "@/components/fx/TextFX";
-import { MobileFooter } from "@/components/MobileFooter";
 import { TechMarquee } from "@/components/fx/TechMarquee";
 
 const MAX_PROJECTS = 4; // corto para que no choque con la marquee
@@ -58,23 +57,47 @@ export function Home({ nameClassName = "" }: { nameClassName?: string }) {
 
   return (
     <>
-      <div className="flex min-h-screen w-full flex-col overflow-x-hidden px-5 pt-10 pb-10 md:px-14 md:pt-14 md:pb-[170px]">
+      <div className="flex min-h-screen w-full flex-col overflow-x-hidden px-5 pt-10 pb-[160px] md:px-14 md:pt-14 md:pb-[170px]">
         {/* header centrado en x */}
         <header className="flex cursor-default justify-center pt-8 select-none md:pt-16">
-          <div className="flex items-center gap-5">
-            <LogoFX fitParent linkHover={false} className="relative hidden shrink-0 md:block" />
-            <TextFX>
+          <div className="flex items-center gap-3 md:gap-5">
+            {/* el logo toma el alto del nombre + bajada */}
+            <div className="shrink-0 self-stretch">
+              <LogoFX fitParent linkHover={false} ghost className="relative" />
+            </div>
+            <TextFX ghost ghostDelay={500}>
             <div className="flex flex-col gap-2">
-              <h1 className={`text-start text-[72px] leading-none font-normal tracking-[-0.045em] text-white ${nameClassName}`}>
+              <h1 className={`text-start text-[34px] leading-none md:text-[72px] font-normal tracking-[-0.045em] text-white ${nameClassName}`}>
                 {site.name}
               </h1>
-              <h2 className="text-md text-start text-white">
-                {site.rolePrefix.replace(/\s*currently building @\s*$/, "")}
-                <br />
-                building @{" "}
-                <a href={site.building.href} target="_blank" rel="noopener noreferrer" className="cursor-pointer">
-                  {site.building.name}
-                </a>
+              <h2 className="text-start text-[13px] whitespace-nowrap text-white md:text-base md:whitespace-normal">
+                {/* mobile: embudo -> rol / building @ inbound / based in 🇦🇷 */}
+                <span className="md:hidden">
+                  {site.rolePrefix.split(" based in ")[0]}
+                  <br />
+                  building @{" "}
+                  <a href={site.building.href} target="_blank" rel="noopener noreferrer" className="cursor-pointer">
+                    {site.building.name.split(" ")[0]}
+                  </a>
+                  <br />
+                  based in {site.rolePrefix.split(" based in ")[1]?.split(" ")[1]}
+                </span>
+                <span className="hidden md:inline">
+                  {(() => {
+                    // desktop: igual que siempre
+                    const [role, ...rest] = site.rolePrefix.replace(/\s*currently building @\s*$/, "").split(" based in ");
+                    return rest.length ? (
+                      <>
+                        {role} based in {rest.join(" based in ")}
+                      </>
+                    ) : role;
+                  })()}
+                  <br />
+                  building @{" "}
+                  <a href={site.building.href} target="_blank" rel="noopener noreferrer" className="cursor-pointer">
+                    {site.building.name}
+                  </a>
+                </span>
               </h2>
             </div>
             </TextFX>
@@ -198,8 +221,7 @@ export function Home({ nameClassName = "" }: { nameClassName?: string }) {
           </div>
         </main>
       </div>
-      <MobileFooter />
-      <TechMarquee className="hidden md:block" />
+      <TechMarquee />
     </>
   );
 }

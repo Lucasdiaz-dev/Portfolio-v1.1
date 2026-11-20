@@ -11,6 +11,7 @@ const STRENGTH = 0.5; // cuanto se deforma
 const RGB_SPLIT = 1.3; // cuanto se separan los colores
 const DAMP = 0.9; // que tan rapido vuelve
 const MAX_VEL = 28; // px
+const GHOST_EVERY = 4500; // ms entre "hovers fantasma" en mobile y desktop
 
 const vs = `attribute vec2 p; varying vec2 vUv;
 void main(){ vUv = p*0.5+0.5; gl_Position = vec4(p,0.,1.); }`;
@@ -44,9 +45,13 @@ type Props = {
   className?: string;
   /** el hover sobre el elemento padre (ej. toda la fila) tambien activa el efecto */
   hoverParent?: boolean;
+  /** en mobile y desktop (sin hover) pasa un hover fantasma cada tanto */
+  ghost?: boolean;
+  /** ms de retraso del hover fantasma (para encadenarlo con otros) */
+  ghostDelay?: number;
 };
 
-export function TextFX({ children, className = "", hoverParent = false }: Props) {
+export function TextFX({ children, className = "", hoverParent = false, ghost = false, ghostDelay = 0 }: Props) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -214,6 +219,46 @@ export function TextFX({ children, className = "", hoverParent = false }: Props)
     };
     const onLeave = () => (last = null);
 
+    // hover fantasma: mismo efecto, solo cambia como se activa
+    const push = (p: { x: number; y: number }) => {
+      if (last) {
+        vel.x += (p.x - last.x) * 0.6;
+        vel.y += (p.y - last.y) * 0.6;
+      }
+      const m = Math.hypot(vel.x, vel.y);
+      if (m > MAX_VEL) {
+        vel.x *= MAX_VEL / m;
+        vel.y *= MAX_VEL / m;
+      }
+      last = p;
+      target = { x: p.x / cssW, y: p.y / cssH };
+      if (!raf) raf = requestAnimationFrame(loop);
+    };
+    let ghostRaf = 0, ghostEvery = 0;
+    const ghostStart = ghost
+      ? window.setTimeout(() => {
+          const sweep = () => {
+            if (hover.matches(":hover")) return; // si hay mouse encima, manda el mouse
+            if (!cssW) return;
+            const w = cssW - MARGIN * 2, h = cssH - MARGIN * 2;
+            const y0 = MARGIN + h * (0.3 + Math.random() * 0.4), dir = Math.random() < 0.5 ? 1 : -1;
+            const t0 = performance.now(), dur = 1100;
+            last = null;
+            const step = (t: number) => {
+              if (hover.matches(":hover")) return;
+              const k = Math.min((t - t0) / dur, 1), e = k * k * (3 - 2 * k);
+              const p = { x: MARGIN + w * (dir > 0 ? e : 1 - e), y: y0 + Math.sin(e * Math.PI) * h * 0.15 };
+              if (!last) { last = p; target = { x: p.x / cssW, y: p.y / cssH }; mouse = { ...target }; }
+              push(p);
+              if (k < 1) ghostRaf = requestAnimationFrame(step); else last = null;
+            };
+            ghostRaf = requestAnimationFrame(step);
+          };
+          sweep();
+          ghostEvery = window.setInterval(sweep, GHOST_EVERY);
+        }, 1200 + ghostDelay)
+      : 0;
+
     // al cambiar el tema los colores CSS se actualizan despues del evento:
     // redibujamos en los proximos frames (y una vez mas por las dudas)
     let t1 = 0, t2 = 0;
@@ -232,6 +277,9 @@ export function TextFX({ children, className = "", hoverParent = false }: Props)
     hover.addEventListener("mouseenter", onEnter);
     hover.addEventListener("mouseleave", onLeave);
     return () => {
+      clearTimeout(ghostStart);
+      clearInterval(ghostEvery);
+      cancelAnimationFrame(ghostRaf);
       cancelAnimationFrame(raf);
       ro.disconnect();
       mq.removeEventListener("change", onScheme);
@@ -242,7 +290,7 @@ export function TextFX({ children, className = "", hoverParent = false }: Props)
       hover.removeEventListener("mouseenter", onEnter);
       hover.removeEventListener("mouseleave", onLeave);
     };
-  }, [hoverParent]);
+  }, [hoverParent, ghost, ghostDelay]);
 
   return (
     <div ref={wrapRef} className={`relative ${className}`}>
