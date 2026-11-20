@@ -23,6 +23,7 @@ const GAP = 56;
 const SPEED = 40; // px por segundo
 const RADIUS = 140;
 const LIFT = 30; // cuanto sube la palabra bajo el mouse
+const TOUCH_REVEAL = 36; // tactil: cuanto sube el texto al estirar el scroll de mas (rebote de iOS)
 const TOUCH_SWAY = 9; // tactil: vaiven del mouse fantasma (mas chico = menos color)
 
 const vs = `attribute vec2 p; varying vec2 vUv; void main(){ vUv = p*0.5+0.5; gl_Position = vec4(p,0.,1.); }`;
@@ -114,7 +115,7 @@ export function TechMarquee({ className = "" }: { className?: string }) {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const touch = window.matchMedia("(hover: none)").matches;
     const lifts = new Map<number, number>();
-    let x = 0, hL = 0, hR = 0, hover = false;
+    let x = 0, hL = 0, hR = 0, hover = false, reveal = 0;
     let mouse = { x: -999, y: -999 }, target = { ...mouse };
     let last: { x: number; y: number } | null = null;
     const vel = { x: 0, y: 0 };
@@ -125,7 +126,7 @@ export function TechMarquee({ className = "" }: { className?: string }) {
       ctx.font = FONT;
       ctx.textBaseline = "alphabetic";
       ctx.fillStyle = fg;
-      const y = H + 14; // la base queda apenas por debajo del borde: se corta un poco pero se lee
+      const y = H + 14 - reveal; // la base queda apenas por debajo del borde: se corta un poco pero se lee
       const base = Math.floor(x / cycle) * TECH.length;
 
       // bordes de la palabra bajo el mouse (la ola se mide desde ahi)
@@ -175,7 +176,13 @@ export function TechMarquee({ className = "" }: { className?: string }) {
     const frame = (t: number) => {
       const dt = Math.min((t - prevT) / 1000, 0.05);
       prevT = t;
-      if (touch) ghostMove(t);
+      if (touch) {
+        ghostMove(t);
+        // rebote al final del scroll: el texto sube para verse completo y al soltar vuelve
+        const doc = document.documentElement;
+        const over = window.scrollY + window.innerHeight - doc.scrollHeight;
+        reveal = Math.min(Math.max(over, 0), TOUCH_REVEAL);
+      }
       if (!reduced) x += SPEED * (hover && !touch ? 0.35 : 1) * dt; // con el mouse encima baja la velocidad
       mouse.x += (target.x - mouse.x) * 0.15;
       mouse.y += (target.y - mouse.y) * 0.15;
