@@ -57,15 +57,18 @@ export function Home({ nameClassName = "" }: { nameClassName?: string }) {
 
   return (
     <>
-      <div className="flex min-h-screen w-full flex-col overflow-x-hidden px-5 pt-10 pb-[160px] md:px-14 md:pt-14 md:pb-[170px]">
+      {/* GUIA TEMPORAL: borrar */}
+      <div aria-hidden className="pointer-events-none fixed inset-y-0 left-1/2 z-[9999] w-px -translate-x-1/2 bg-red-500" />
+      <div className="flex min-h-screen w-full flex-col overflow-x-hidden px-5 pt-10 md:px-14 md:pt-14 md:pb-[170px]">
         {/* header centrado en x */}
         <header className="flex cursor-default justify-center pt-8 select-none md:pt-16">
-          <div className="flex items-center gap-3 md:gap-5">
-            {/* el logo toma el alto del nombre + bajada */}
-            <div className="shrink-0 self-stretch">
+          {/* mobile: dos columnas iguales -> el gap entre logo y texto cae justo en la mitad */}
+          <div className="grid w-full grid-cols-2 items-center gap-3 md:flex md:w-auto md:gap-5">
+            {/* mobile: alto fijo del logo (h-[84px], tocá este valor); desktop: toma el alto del nombre + bajada */}
+            <div className="h-[98px] shrink-0 self-center justify-self-end md:h-auto md:self-stretch">
               <LogoFX fitParent linkHover={false} ghost className="relative" />
             </div>
-            <TextFX ghost ghostDelay={500}>
+            <TextFX ghost ghostDelay={500} className="justify-self-start">
             <div className="flex flex-col gap-2">
               <h1 className={`text-start text-[34px] leading-none md:text-[72px] font-normal tracking-[-0.045em] text-white ${nameClassName}`}>
                 {site.name}
@@ -117,7 +120,7 @@ export function Home({ nameClassName = "" }: { nameClassName?: string }) {
               <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-12 md:grid-cols-2 md:gap-16">
                 <section className="flex flex-col gap-6">
                   {site.paragraphs.map((p) => (
-                    <p key={p} className="text-md text-start text-white selection:bg-white selection:text-black">{p}</p>
+                    <p key={p} className="text-md text-justify text-white md:text-start selection:bg-white selection:text-black">{p}</p>
                   ))}
                   <div className="flex flex-col gap-3 select-none">
                     <span className="text-sm text-white/50">reach out</span>
@@ -190,7 +193,7 @@ export function Home({ nameClassName = "" }: { nameClassName?: string }) {
                       {meta(project) ? (
                         <span className="text-sm font-light text-white/50">{meta(project)}</span>
                       ) : null}
-                      <p className="text-md text-start text-white/90 selection:bg-white selection:text-black">{project.details ?? project.description}</p>
+                      <p className="text-md text-justify text-white/90 md:text-start selection:bg-white selection:text-black">{project.details ?? project.description}</p>
                       {project.href ? (
                         <a href={project.href} target="_blank" rel="noopener noreferrer" className={`text-sm text-white ${inlineLinkClass}`}>
                           visit project ↗
@@ -220,8 +223,11 @@ export function Home({ nameClassName = "" }: { nameClassName?: string }) {
             </div>
           </div>
         </main>
+        {/* mobile: al pie del contenido (se ve al scrollear); desktop: fija abajo */}
+        <div className="-mx-5 mt-6 md:contents">
+          <TechMarquee />
+        </div>
       </div>
-      <TechMarquee />
     </>
   );
 }

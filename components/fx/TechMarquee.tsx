@@ -23,8 +23,7 @@ const GAP = 56;
 const SPEED = 40; // px por segundo
 const RADIUS = 140;
 const LIFT = 30; // cuanto sube la palabra bajo el mouse
-const TOUCH_WAVE = 170; // ancho de la ola en pantallas tactiles (px)
-const TOUCH_LIFT = 0.55; // altura de la ola en pantallas tactiles (1 = como el hover)
+const TOUCH_SWAY = 9; // tactil: vaiven del mouse fantasma (mas chico = menos color)
 
 const vs = `attribute vec2 p; varying vec2 vUv; void main(){ vUv = p*0.5+0.5; gl_Position = vec4(p,0.,1.); }`;
 const fs = `precision mediump float;
@@ -151,7 +150,7 @@ export function TechMarquee({ className = "" }: { className?: string }) {
           const id = (base + i) * 100 + j, px = cx + charX[k][j];
           let goal = 0;
           // tactil: ola continua letra por letra alrededor del punto fijo del centro
-          if (touch) goal = TOUCH_LIFT * Math.exp(-(((px - W / 2) / TOUCH_WAVE) ** 2)); // cresta quieta en el centro
+          if (touch) goal = 0; // tactil: sin ola, solo corre con un toque de color
           else if (over) goal = 1;
           else if (hover) {
             const d = px < hL ? hL - px : Math.max(0, px - hR);
@@ -222,7 +221,7 @@ export function TechMarquee({ className = "" }: { className?: string }) {
     // centro (con un vaiven minimo para que haya velocidad y aparezcan los colores)
     const ghostMove = (t: number) => {
       const s = t / 1000;
-      const p = { x: W / 2 + Math.sin(s * 1.1) * 18, y: BAND / 2 + Math.sin(s * 1.9) * 8 };
+      const p = { x: W / 2 + Math.sin(s * 1.1) * TOUCH_SWAY, y: BAND / 2 + Math.sin(s * 1.9) * TOUCH_SWAY * 0.4 };
       if (!hover) { hover = true; last = p; target = { ...p }; mouse = { ...p }; }
       if (last) { vel.x += (p.x - last.x) * 0.6; vel.y += (p.y - last.y) * 0.6; }
       last = p; target = p;
@@ -246,7 +245,7 @@ export function TechMarquee({ className = "" }: { className?: string }) {
       ref={canvasRef}
       aria-label={`tecnologías: ${TECH.join(", ")}`}
       role="img"
-      className={`pointer-events-none fixed bottom-0 left-0 w-full ${className}`}
+      className={`pointer-events-none relative block w-full md:fixed md:bottom-0 md:left-0 ${className}`}
       style={{ height: BAND + PAD }}
     />
   );
