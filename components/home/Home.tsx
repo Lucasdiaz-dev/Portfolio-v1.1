@@ -57,7 +57,7 @@ export function Home({ nameClassName = "" }: { nameClassName?: string }) {
 
   return (
     <>
-      <div className="flex min-h-screen w-full flex-col overflow-x-clip px-5 md:overflow-x-hidden pt-10 md:px-14 md:pt-14 md:pb-[170px]">
+      <div className="flex min-h-[calc(100svh-134px)] w-full flex-col overflow-x-hidden px-5 md:min-h-screen pt-10 md:px-14 md:pt-14 md:pb-[170px]">
         {/* header centrado en x */}
         <header className="flex cursor-default justify-center pt-8 select-none md:pt-16">
           <div className="flex items-center gap-3 md:gap-5">
@@ -220,10 +220,11 @@ export function Home({ nameClassName = "" }: { nameClassName?: string }) {
             </div>
           </div>
         </main>
-        {/* mobile: al pie del contenido (se ve al scrollear); desktop: fija abajo */}
-        <div className="-mx-5 mt-6 md:contents">
-          <TechMarquee />
-        </div>
+      </div>
+      {/* mobile: al pie del contenido (se ve al scrollear), fuera del contenedor con overflow
+          para que al estirar el scroll se vea lo que queda debajo del corte; desktop: fija abajo */}
+      <div className="md:contents">
+        <TechMarquee />
       </div>
     </>
   );
